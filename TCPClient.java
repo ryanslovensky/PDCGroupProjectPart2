@@ -59,7 +59,7 @@ public class TCPClient {
             out.println(Integer.toString(send[i]));
             System.out.println(Integer.toString(send[i]));
         }
-        out.println("break")
+        out.println("break");
         ArrayList<Integer> temp = new ArrayList<Integer>();
         String inputLine;
         // Communication while loop
