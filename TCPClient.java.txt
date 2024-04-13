@@ -1,338 +1,344 @@
-import java.io.*;   
+import java.io.*;
 
-import java.net.*;   
 
-import java.util.ArrayList;   
 
-  
+import java.net.*;
 
- 
 
-    public class TCPServer {   
 
-      //The merge and mergesort algorithm   
+import java.util.ArrayList;
 
-      public static void mergeSort(int[] arr, int left, int right){   
 
-         if(left < right) {   
 
-            int mid = (left + right) / 2;   
+public class TCPClient {
 
-            mergeSort(arr, left, mid);   
 
-            mergeSort(arr, mid+1, right);   
 
-            merge(arr, left, mid, right);}  
+    //Method for generating an array of given size of random intergers from 0 to 256
 
-      }   
 
-      public static void merge(int[] arr, int left, int mid, int right) {   
 
-         int[] arr2 = new int[right - left + 1];  
+    //This method will be removed when the array is input through the client
 
-         int l = left;   
 
-         int m = mid + 1;   
 
-         int k = 0;   
+    public static int[] genArr(int size)
 
-         while(l <= mid && m <= right) {   
 
-            if(arr[l] <= arr[m]) {   
 
-               arr2[k++] = arr[l++];  
+    {
 
-            }   
 
- 
 
-            else {   
+        int[] arr = new int[size];
 
-               arr2[k++] = arr[m++];   
 
-            }   
 
-         }    
+        for(int i = 0; i < size; i++)
 
- 
 
-         while(l <= mid) {   
 
-            arr2[k++] = arr[l++];   
+        {
 
-         }   
 
-         while(m <= right) {   
 
-            arr2[k++] = arr[m++];   
+            arr[i] = (int)(Math.random() * 256);
 
-         }   
 
-         System.arraycopy(arr2, 0, arr, left, arr2.length);   
 
-      }   
+        }
 
-       public static void main(String[] args) throws IOException {   
 
-         // Variables for setting up connection and communication   
 
-         Socket Socket = null; // socket to connect with ServerRouter   
+        return arr;
 
-         PrintWriter out = null; // for writing to ServerRouter  
 
-         BufferedReader in = null; // for reading form ServerRouter   
 
-         InetAddress addr = InetAddress.getLocalHost();   
+    }
 
-         String host = addr.getHostAddress(); // Server machine's IP          
 
-         String routerName = "10.78.152.19"; // ServerRouter host name  
 
-         int SockNum = 5555; // port number   
+    public static void main(String[] args) throws IOException {
 
-         // Tries to connect to the ServerRouter   
 
-         try {   
 
-            Socket = new Socket(routerName, SockNum);   
 
-            out = new PrintWriter(Socket.getOutputStream(), true);   
 
-            in = new BufferedReader(new InputStreamReader(Socket.getInputStream()));   
 
-         }    
 
-             catch (UnknownHostException e) {   
+        // Variables for setting up connection and communication
 
-               System.err.println("Don't know about router: " + routerName);   
 
-               System.exit(1);   
 
-            }    
+        Socket Socket = null; // socket to connect with ServerRouter
 
-             catch (IOException e) {   
 
-               System.err.println("Couldn't get I/O for the connection to: " + routerName);   
 
-               System.exit(1);   
+        PrintWriter out = null; // for writing to ServerRouter
 
-            }   
 
-         // Variables for message passing          
 
-         String fromServer; // messages sent to ServerRouter   
+        BufferedReader in = null; // for reading form ServerRouter
 
-         String fromClient; // messages received from ServerRouter         
 
-         String address ="10.78.132.188"; // destination IP (Client)   
 
-         // Communication process (initial sends/receives)  
+        InetAddress addr = InetAddress.getLocalHost();
 
-         out.println(address);// initial send (IP of the destination Client)   
 
-         fromClient = in.readLine();// initial receive from router (verification of connection)   
 
-         System.out.println("ServerRouter: " + fromClient);   
+        String host = addr.getHostAddress(); // Client machine's IP
 
-         //out.println(address);  
 
-          
 
-         //potential exchange of array size, and conversion of while to for loop, attempt solving fromClient = in.readLine(); issue first 
+        String routerName = "10.78.152.19"; // ServerRouter host name
 
-         ArrayList<Integer> temp = new ArrayList<Integer>();   
 
- 
 
-         // Communication while loop   
+        int SockNum = 5555; // port number
 
- 
 
-         //fromClient = in.readLine(); //Why won't this work properly, launching server/client too far apart timewise? 
 
- 
 
-         while ((fromClient = in.readLine()) != null) {  //might be blocking/expecting another message, do some testing? 
 
-            System.out.println("Client said: " + fromClient);   
-            if(fromClient.equals("break")){
-               break;
-            }
-            if(!fromClient.contains(".")){  
-               if(fromClient=="break"){
-                  break;
-               }
-               temp.add(Integer.valueOf(fromClient)); 
-               System.out.println("tempValue: "+temp);  
-            }  
 
-         }   
 
- 
+        // Tries to connect to the ServerRouter
 
-         //Program appears to never get past this point  
 
- 
 
+        try {
 
-         int[] tempArray = new int[temp.size()];   
 
-         for(int i = 0; i<temp.size(); i++){   
 
-            tempArray[i] = temp.get(i);   
+            Socket = new Socket(routerName, SockNum);
 
-         }   
- 
 
-         int[] result = runSort(tempArray, 10);   
 
-         for(int i = 0; i<result.length; i++){   
+            out = new PrintWriter(Socket.getOutputStream(), true);
 
-            out.println(Integer.toString(result[i]));   
 
-         }   
 
-         // closing connections   
+            in = new BufferedReader(new InputStreamReader(Socket.getInputStream()));
 
-         out.close();   
 
-         in.close();   
 
-         Socket.close();   
+        }
 
-      }   
 
- 
 
-      //Driver method for creating threads, dividing work, and starting   
+        catch (UnknownHostException e) {
 
-      public static int[] runSort(int[] arr, int threadNum) throws IOException   
 
-      {   
 
-         long tTime = System.nanoTime();   
+            System.err.println("Don't know about router: " + routerName);
 
-         //Create threads and divide array by number of threads to segment data   
 
-         Thread[] threads = new Thread[threadNum];   
 
-         int segSize = arr.length / threadNum;    
+            System.exit(1);
 
-         //go through all threads and give them their sections to sort and start threads  
 
-         for(int i = 0; i < threadNum; i++)   
 
-         {   
+        }
 
-            int sIn = i * segSize;   
 
-            int eIn = (i == threadNum - 1) ? arr.length - 1 : (sIn + segSize - 1);   
 
-            threads[i] = new Thread(new threadJob(arr, sIn, eIn));//Need to re-write, get work to each server instance, use routing table.   
+        catch (IOException e) {
 
-            //System.out.print("Thread: " + i + " will be sorting array segment: ");   
 
-            //printArr(arr, sIn, eIn);   
 
-            threads[i].start();   
+            System.err.println("Couldn't get I/O for the connection to: " + routerName);
 
-         }   
 
-         //have all threads wait for completion of eachother to final merge.    
 
-         for(Thread thread: threads)   
+            System.exit(1);
 
-         {   
 
-            try   
 
-            {   
+        }
 
-               thread.join();   
 
-            }   
 
-            catch(InterruptedException e)   
 
-            {   
 
-               e.printStackTrace();   
 
-            }   
 
-         }   
+        // Variables for message passing
 
-         //now that segments of the array has been sorted go through and merge the segments into 1   
 
-         //This is a simple implementation and will just be merging the first section with each of the next sections   
 
-         //That is the first merge will merge section 1 and 2 then the second merge will merge section 1+2 with section 3 and so on   
+        String fromServer; // messages received from ServerRouter
 
-         for(int i = 0; i < threadNum; i++)   
 
-         {   
 
-            int sIn = i * segSize;  
+        String fromUser; // messages sent to ServerRouter
 
-            int mid = i*segSize == 0? 0 : i*segSize-1;   
 
-            int eIn = (i == threadNum - 1) ? arr.length - 1 : (sIn + segSize - 1);  
 
-            //System.out.println("Merging values: 0, " + mid + ", " + eIn);    
+        String address ="10.78.128.241"; // destination IP (Server)
 
-            merge(arr, 0, mid, eIn);   
 
-         }   
 
-         long ftime = System.nanoTime();   
+        long t0, t1, t;
 
-         FileWriter logger = new FileWriter("logger.txt");   
 
-         logger.write("Time: "+Long.toString(ftime-tTime));   
 
-         return arr;   
 
-      }   
 
- 
 
-      static class threadJob implements Runnable   
 
-      {   
+        // Communication process (initial sends/receives
 
-         private int[] arr;   
 
-         private int sIn;   
 
-         private int eIn;   
+        out.println(address);// initial send (IP of the destination Server)
 
-         private Object address;   
 
-         public threadJob(int[] arr, int sIn, int eIn)  
 
-         {   
+        fromServer = in.readLine();//initial receive from router (verification of connection)
 
-            this.arr = arr;   
 
-            this.sIn = sIn;   
 
-            this.eIn = eIn;   
+        System.out.println("ServerRouter: " + fromServer);
 
-         }   
 
-         @Override   
 
-         public void run()   
+        out.println(host); // Client sends the IP of its machine as initial send
 
-         {   
 
-            mergeSort(arr, sIn, eIn);   
 
-         }   
+        t0 = System.currentTimeMillis();
 
-      }   
 
-   }  
+
+
+
+        // Communication for array data to serverrouter
+
+
+
+        //fromServer = in.readLine();
+
+
+
+        System.out.println("Server: " + fromServer);
+
+
+
+        t1 = System.currentTimeMillis();
+
+
+
+        t = t1 - t0;
+
+
+
+        System.out.println("Cycle time: " + t);
+
+
+
+        int[] send = genArr(15);
+
+        System.out.println("Reached");
+
+        for(int i = 0; i<send.length; i++){
+
+
+
+            out.println(Integer.toString(send[i]));
+
+            System.out.println(Integer.toString(send[i]));
+
+        }
+        out.println("break");
+
+
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+
+
+
+        String inputLine;
+
+
+
+        // Communication while loop
+
+
+
+        while ((inputLine = in.readLine()) != null) {
+            System.out.println("Client said: " + inputLine);
+            temp.add(Integer.valueOf(inputLine));
+
+
+
+        }// end while
+
+
+
+
+
+
+
+        int[] tempArray = new int[temp.size()];
+
+
+
+        for(int i = 0; i<temp.size(); i++){
+
+
+
+            tempArray[i] = temp.get(i);
+
+
+
+        }
+
+
+
+        for(int i = 0; i<tempArray.length; i++){
+
+
+
+            System.out.println(tempArray[i]+" ");
+
+
+
+        }
+
+
+
+
+
+
+
+        // closing connections
+
+
+
+        out.close();
+
+
+
+        in.close();
+
+
+
+        Socket.close();
+
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
 
  
 
